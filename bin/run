@@ -1,0 +1,8 @@
+if [ "$2" = "-c" ]; then
+	echo Compiling server and client
+  javac client/Client.java
+  javac server/Server.java
+fi
+
+xterm -e java server.Server $1 &
+xterm -e java client.Client localhost $1 &

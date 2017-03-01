@@ -1,0 +1,12 @@
+savedir=$1
+mkdir $savedir
+keytool -import -file CA.cer -alias CA -keystore $savedir/clienttruststore
+keytool -keystore $savedir/clientkeystore -genkeypair -alias client
+keytool -keystore $savedir/clientkeystore -certreq -alias client -file client.csr
+openssl x509 -req -in client.csr -CA CA.cer -CAkey private.key -CAcreateserial -out clientsigned.cer
+keytool -keystore $savedir/clientkeystore -importcert -file CA.cer -alias CA
+keytool -keystore $savedir/clientkeystore -importcert -file clientsigned.cer -alias client
+rm client.csr
+rm clientsigned.cer
+echo
+echo Successfully generated user files

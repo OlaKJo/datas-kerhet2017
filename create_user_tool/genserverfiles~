@@ -1,0 +1,43 @@
+#echo COMMAND: "openssl genrsa -out private.key 1024"
+openssl genrsa -out private.key 1024
+#echo success
+#read input
+
+#echo COMMAND: "echo -e "SE\nSKANE\nLUND\n\n\nCA\n "| openssl req -new -x509 -key private.key -out CA.cer"
+echo -e "SE\nSKANE\nLUND\n\n\nCA\n "| openssl req -new -x509 -key private.key -out CA.cer
+#echo success
+#read input
+
+#echo COMMAND: "echo -e "password\npassword\nMyServer\n\n\n\n\n\nyes\n " | keytool -keystore serverkeystore -genkeypair -alias server"
+echo -e "password\npassword\nMyServer\n\n\n\n\n\nyes\n " | keytool -keystore serverkeystore -genkeypair -alias server
+#echo success
+#readinput
+
+#echo COMMAND: "echo password | keytool -keystore serverkeystore -certreq -alias server -file server.csr"
+echo password | keytool -keystore serverkeystore -certreq -alias server -file server.csr
+#echo success
+#read input
+
+#echo COMMAND: "openssl x509 -req -in server.csr -CA CA.cer -CAkey private.key -CAcreateserial -out serversigned.cer"
+openssl x509 -req -in server.csr -CA CA.cer -CAkey private.key -CAcreateserial -out serversigned.cer
+#echo success
+#read input
+
+#echo COMMAND: "echo -e "password\nyes" | keytool -keystore serverkeystore -importcert -file CA.cer -alias CA"
+echo -e "password\nyes" | keytool -keystore serverkeystore -importcert -file CA.cer -alias CA
+#echo success
+#read input
+
+#echo COMMAND: "echo password | keytool -keystore serverkeystore -importcert -file serversigned.cer -alias server"
+echo password | keytool -keystore serverkeystore -importcert -file serversigned.cer -alias server
+#echo success
+#read input
+
+#echo COMMAND: "echo -e "password\npassword\nyes" | keytool -import -file CA.cer -alias CA -keystore servertruststore"
+echo -e "password\npassword\nyes" | keytool -import -file CA.cer -alias CA -keystore servertruststore
+#echo success
+
+rm server.csr
+rm serversigned.cer
+echo
+echo Successfully generated server files

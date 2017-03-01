@@ -1,0 +1,80 @@
+#!/usr/bin/expect
+
+#read name
+send_user "Enter name, e.g. AndersAndersson: "
+expect_user -re "(.*)\n"
+set name $expect_out(1,string)
+
+#read department
+send_user "Enter department, e.g. Neurokirurgi: "
+expect_user -re "(.*)\n"
+set department $expect_out(1,string)
+
+#read type
+send_user "Enter type (Government/Doctor/Nurse/Patient): "
+expect_user -re "(.*)\n"
+set type $expect_out(1,string)
+
+#read password
+send_user "Enter password: "
+expect_user -re "(.*)\n"
+set password $expect_out(1,string)
+
+#start commands
+spawn "./commands" userfiles_$name
+
+##answers to keytool -import -file CA.cer -alias CA -keystore $savedir/clienttruststore
+expect "Enter keystore password:  "
+send "password\r"
+expect "Re-enter new password: "
+send "password\r"
+expect "Trust this certificate?"
+send "yes\r"
+
+##answers to keytool -keystore $savedir/clientkeystore -genkeypair -alias client
+expect "Enter keystore password:  "
+send "password\r"
+expect "Re-enter new password: "
+send "password\r"
+expect ":"
+send "$name\r"
+expect ":"
+send "$department\r"
+expect ":"
+send "$type\r"
+expect ":"
+send "\r"
+expect ":"
+send "\r"
+expect ":"
+send "\r"
+expect ":"
+send "y\r"
+expect ":"
+send "$password\r"
+expect ":"
+send "$password\r"
+
+##answers to keytool -keystore $savedir/clientkeystore -certreq -alias client -file client.csr
+expect "Enter keystore password:"
+send "password\r"
+expect "Enter key password for"
+send "$password\r"
+
+##answers to openssl x509 -req -in client.csr -CA CA.cer -CAkey private.key -CAcreateserial -out clientsigned.cer
+
+##answers to keytool -keystore $savedir/clientkeystore -importcert -file CA.cer -alias CA
+expect "Enter keystore password:"
+send "password\r"
+expect "Trust this certificate?"
+send "yes\r"
+
+##answers to keytool -keystore $savedir/clientkeystore -importcert -file clientsigned.cer -alias client
+expect "Enter keystore password:"
+send "password\r"
+expect "Enter key password for"
+send "$password\r"
+
+interact
+
+
